@@ -14,6 +14,8 @@ import java.util.*;
 /**
  * Reads item-IDs from a TCP socket, keeps a sliding 1-minute / 5-second-slide window,
  * and prints the top-5 most-viewed items for every window.
+ *  Build: mvn clean package -DskipTests
+ *  Run: java -jar target/topk-1.0-SNAPSHOT.jar
  */
 public class TopKWindowedAggregator extends
         ProcessWindowFunction<
@@ -57,17 +59,11 @@ public class TopKWindowedAggregator extends
             Iterable<Tuple2<String, Integer>> elements,
             Collector<Map<String, Integer>> out) {
 
-        // Print window boundaries
-        System.out.println("Processing window: " + ctx.window().getStart() + " to " + ctx.window().getEnd());
-
         // 1.  Count views for every item in this window
         Map<String, Integer> counts = new HashMap<>();
         for (Tuple2<String, Integer> e : elements) {
             counts.put(e.f0, counts.getOrDefault(e.f0, 0) + e.f1);
         }
-
-        // Print all items in this window
-        System.out.println("Items in this window: " + counts);
 
         // 2.  Keep only the best K items with a min-heap
         PriorityQueue<Map.Entry<String, Integer>> heap =
