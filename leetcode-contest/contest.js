@@ -92,7 +92,7 @@ class LeaderboardDemo {
     }
 
     async addUserScore(userId, score) {
-        await this.client.zAdd(this.leaderboardKey, { score: score, value: userId });
+        await this.client.zIncrBy(this.leaderboardKey, score, userId);
         console.log(`✅ Added: ${userId} -> ${score}`);
     }
 
@@ -121,7 +121,7 @@ class LeaderboardDemo {
         
         // Get all users with scores (ZREVRANGE for descending order)
         const allUsers = await this.client.zRangeWithScores(this.leaderboardKey, 0, -1);
-        
+        allUsers.reverse();
         allUsers.forEach((user, index) => {
             const rank = index + 1;
             console.log(`   ${rank.toString().padStart(2)}. ${user.value.padEnd(15)} - ${Number(user.score).toLocaleString()} points`);
